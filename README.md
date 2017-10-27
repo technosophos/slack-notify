@@ -30,6 +30,36 @@ Running the Docker container goes like this:
 $ export SLACK_WEBHOOK=https://hooks.slack.com/services/Txxxxxx/Bxxxxxx/xxxxxxxx
 $ docker run -e SLACK_WEBHOOK=$SLACK_WEBHOOK -e SLACK_MESSAGE="hello" -e SLACK_CHANNEL=acid technosophos/slack-notify
 ```
+
+### In Brigade
+
+You can easily use this inside of brigade hooks. Here is an example from
+[hello-helm](https://github.com/technosophos/hello-helm):
+
+
+```javascript
+const {events, Job} = require("brigadier")
+
+events.on("imagePush", (e, p) => {
+
+  var slack = new Job("slack-notify", "technosophos/slack-notify:latest", ["/slack-notify"])
+
+  // This doesn't need access to storage, so skip mounting to speed things up.
+  slack.storage.enabled = false
+  slack.env = {
+    // It's best to store the slack webhook URL in a project's secrets.
+    SLACK_WEBHOOK: p.secrets.SLACK_WEBHOOK,
+    SLACK_USERNAME: "MyBot",
+    SLACK_TITLE: "Message Title",
+    SLACK_MESSAGE: "Message Body",
+    SLACK_COLOR: "#0000ff"
+  }
+  slack.run()
+})
+```
+
+
+
 ## Environment Variables
 
 ```shell
