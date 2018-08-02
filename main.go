@@ -9,23 +9,25 @@ import (
 )
 
 const (
-	EnvSlackWebhook  = "SLACK_WEBHOOK"
-	EnvSlackIcon     = "SLACK_ICON"
-	EnvSlackChannel  = "SLACK_CHANNEL"
-	EnvSlackTitle    = "SLACK_TITLE"
-	EnvSlackMessage  = "SLACK_MESSAGE"
-	EnvSlackColor    = "SLACK_COLOR"
-	EnvSlackUserName = "SLACK_USERNAME"
+	EnvSlackWebhook         = "SLACK_WEBHOOK"
+	EnvSlackIcon            = "SLACK_ICON"
+	EnvSlackChannel         = "SLACK_CHANNEL"
+	EnvSlackTitle           = "SLACK_TITLE"
+	EnvSlackMessage         = "SLACK_MESSAGE"
+	EnvSlackColor           = "SLACK_COLOR"
+	EnvSlackUserName        = "SLACK_USERNAME"
+	EnvSlackMarkdownSupport = "SLACK_MARKDOWN"
 )
 
 type Webhook struct {
-	Text        string       `json:"text,omitempty"`
-	UserName    string       `json:"username,omitempty"`
-	IconURL     string       `json:"icon_url,omitempty"`
-	IconEmoji   string       `json:"icon_emoji,omitempty"`
-	Channel     string       `json:"channel,omitempty"`
-	UnfurlLinks bool         `json:"unfurl_links"`
-	Attachments []Attachment `json:"attachments,omitmepty"`
+	Text            string       `json:"text,omitempty"`
+	UserName        string       `json:"username,omitempty"`
+	IconURL         string       `json:"icon_url,omitempty"`
+	IconEmoji       string       `json:"icon_emoji,omitempty"`
+	Channel         string       `json:"channel,omitempty"`
+	UnfurlLinks     bool         `json:"unfurl_links"`
+	Attachments     []Attachment `json:"attachments,omitempty"`
+	MarkdownSupport bool         `json:"mrkdwn,omitempty"`
 }
 
 type Attachment struct {
@@ -53,10 +55,13 @@ func main() {
 		os.Exit(1)
 	}
 
+	_, isMarkdownSupportEnabled := os.LookupEnv(EnvSlackMarkdownSupport)
+
 	msg := Webhook{
-		UserName: os.Getenv(EnvSlackUserName),
-		IconURL:  os.Getenv(EnvSlackIcon),
-		Channel:  os.Getenv(EnvSlackChannel),
+		UserName:        os.Getenv(EnvSlackUserName),
+		IconURL:         os.Getenv(EnvSlackIcon),
+		Channel:         os.Getenv(EnvSlackChannel),
+		MarkdownSupport: isMarkdownSupportEnabled,
 		Attachments: []Attachment{
 			{
 				Fallback: envOr(EnvSlackMessage, "This space intentionally left blank"),
